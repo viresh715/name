@@ -1,0 +1,149 @@
+game.StarterGui:SetCore("SendNotification", {
+	Title = "Veer Hub";
+    Text = "Loaded!";
+    Duration = "1";
+})
+
+-- [[ TOGGLES ]] --
+getgenv().autoPunch = false;
+getgenv().autoReset = false;
+getgenv().tankPunch = false;
+getgenv().orbFarm = false;
+getgenv().resettime = 16;
+
+-- [[ GUI & VARIABLES ]] --
+local Material = loadstring(game:HttpGet("https://raw.githubusercontent.com/Kinlei/MaterialLua/master/Module.lua"))()
+local X = Material.Load({
+    Title = "Veerhub - Age Of Heroes",
+    Style = 3,
+    SizeX = 400,
+    SizeY = 350,
+    Theme = "Light",
+    ColorOverrides = {
+        MainFrame = Color3.fromRGB(255,255,255),
+    }
+})
+
+local Farmer = X.New({
+    Title = "Farmer"
+})
+
+local Tank = X.New({
+    Title = "Tank"
+})
+
+-- // REMOTES \\ --
+local remotePath = game.Players.LocalPlayer.character.HumanoidRootPart
+
+-- // SERVICES \\ --
+local VirtualUser = game:GetService("VirtualUser")
+local Player = game:GetService("Players").LocalPlayer
+
+-- [[ TANKFARM SECTION ]] --
+
+local AutoPunch = Farmer.Toggle({
+    Text = "Auto Punch",
+    Callback = function(Value)
+        getgenv().autoPunch = Value
+        if Value then
+            punch()
+        end
+    end,
+    Enabled = false
+})
+
+local AutoReset = Farmer.Toggle({
+    Text = "Auto Reset",
+    Callback = function(Value)
+        getgenv().autoReset = Value
+        if Value then
+            reset()
+        end
+    end,
+    Enabled = false
+})
+
+local OrbFarm = Farmer.Toggle({
+    Text = "Orb Farm",
+    Callback = function(Value)
+        getgenv().orbFarm = Value
+        if Value then
+            orbfarm()
+        end
+    end,
+    Enabled = false
+})
+
+local SafeZone = Farmer.Button({
+    Text = "Safe Zone",
+    Callback = function()
+        game.Players.LocalPlayer.character.HumanoidRootPart.CFrame = CFrame.new(-2503.50146, 97.0075302, -2057.61035) + Vector3.new(0,0,0)
+    end,
+    Menu = {
+        Information = function(self)
+            X.Banner({
+                Text = "Teleports you to a safe zone."
+            })
+        end
+    }
+})
+
+-- [[ TANK SECTION ]] --
+local TankPunch = Tank.Toggle({
+    Text = "Tank Punch",
+    Callback = function(Value)
+        getgenv().tankPunch = Value
+        if Value then
+            tankpunch()
+        end
+    end,
+    Enabled = false
+})
+
+
+-- [[ FUNCTIONS ]] --
+function punch()
+    spawn(function()
+        while autoPunch == true do
+            local Target = game.ClientStorage.Events.Punch;
+            Target:FireServer(0.4, 0.1, 1);
+            wait()
+        end
+    end)
+end
+
+function tankpunch()
+    spawn(function()
+        while tankPunch == true do
+            local Target = game.ClientStorage.Events.Punch;
+            Target:FireServer(0.4, 0.1, 1);
+            wait(5)
+        end
+    end)
+end
+
+function reset()
+    spawn(function()
+        while autoReset == true do
+            wait(getgenv().resettime)
+            game:GetService("Players").LocalPlayer.Character.Humanoid.Health = 0
+        end
+    end)
+end
+
+function orbfarm()
+	spawn(function()
+	    while orbFarm == true do
+		    local Orb = workspace.ExperienceOrbs:FindFirstChild('experienceOrb')
+            if Orb then
+                Orb.effects.Core.Enabled = false
+                Orb.effects.Wave.Enabled = false
+                Orb.effects.Rays_Thick.Enabled = false
+                Orb.effects.Flare.Enabled = false
+                Orb.effects.PointLight.Brightness = 0
+                Orb.CFrame = Player.Character.HumanoidRootPart.CFrame
+            end
+        wait()
+        end
+	end)
+end
